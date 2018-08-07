@@ -1,0 +1,59 @@
+.img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  overflow: hidden;
+  font-size: 0;
+  color: white;
+}
+
+.img-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128,128,128,0.5);
+}
+.img-wrapper img 
+{
+    width: 100%;
+}
+.header{
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.title{
+    font-size:1.3em;
+}
+.ui.items>.item>.content>.description{
+    font-size:1.1em;
+}
+.ui.items>.item>.image:not(.ui){
+    width: 30%;
+    height: auto;
+}
+.extra{
+    position: absolute;
+    bottom: 0;
+}
+.ui.segment{
+    width: 65vw;
+}
+
+h1{
+    line-height:2em;
+}
+h3{
+    line-height: 0.3em;
+    font-weight: 500;
+}
+
+p img{
+    border-radius:5px;
+    width: 300px;
+    height: auto;
+}

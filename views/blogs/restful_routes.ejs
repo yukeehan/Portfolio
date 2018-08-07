@@ -1,0 +1,267 @@
+<% include ../partials/header %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/themes/prism.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/prism.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/stylesheets/restful.css">
+<% include ../partials/navbar %>         
+
+<div class="container main-container">
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-8 col-md-12 col">
+            <h1>How to build RESTful routes based on NodeJS, Express and MongoDB</h1>
+            <p class="date"><i class="edit icon"></i>Posted on August 6th 2018 by Yuqing</p>
+            <hr>
+            <p>
+                In my opinion, RESTful routes are like a protocol. 
+                It rules the URL address and makes it cleaner and more elegant. Let's see the difference 
+                between traditional URL address and RESTful one.
+            </p>
+            <pre>
+                <code class="language-js">
+    // traditional URL
+    http://www.yukee.com/account/index.html
+    
+    // URL with RESTful Routes
+    http://www.yukee.com/account/login
+                </code>
+            </pre>
+            <p>We can see that the difference is if there is a suffix. However, this is only at the display level. 
+            If you interested in more detail, then keep reading.</p>
+            <h2>RESTful</h2>
+            <p>REST stands for <strong>Representational State Transfer</strong>. Representation refers to resource represent. 
+            The main resources in Web are image, HTML, CSS, text, zip etc. Traditional URL will represent these resources 
+            directly as the example shown above.</p>
+            <p>As state transfer, we usually use some methods in HTTP to transfer the states. 
+            Such as: GET, POST, DELETE etc. Here is a RESTful Routes Table:</p>
+            <div class="ui center aligned container">
+                <h3>RESTFUL Routes Table</h3>
+                <table class="ui celled center aligned table">
+                    <thead>
+                        <tr>
+                            <th>name</th>
+                            <th>url</th>
+                            <th>HTTP Verb</th>
+                            <th>Discription</th>
+                            <th>Mongoose Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Index</td>
+                            <td>/dogs</td>
+                            <td>GET</td>
+                            <td>List all dogs</td>
+                            <td>Dog.find()</td>
+                        </tr>
+                        <tr id="text" class="warning">
+                            <td>New</td>
+                            <td>/dogs/new</td>
+                            <td>GET</td>
+                            <td>Show new dog forms</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr id="text" class="positive">
+                            <td>Create</td>
+                            <td>/dogs</td>
+                            <td>POST</td>
+                            <td>Create a new dog and redirect to somewhere</td>
+                            <td>Dog.create()</td>
+                        </tr>
+                        <tr id="text" class="negative">
+                            <td>Show</td>
+                            <td>/dogs/:id</td>
+                            <td>GET</td>
+                            <td>Show info about one specific dog</td>
+                            <td>Dog.findById()</td>
+                        </tr>
+                        <tr class="warning">
+                            <td>Edit</td>
+                            <td>/dogs/:id/edit</td>
+                            <td>GET</td>
+                            <td>show edit form for a dog</td>
+                            <td>Dog.findById()</td>
+                        </tr>
+                        <tr class="negative">
+                            <td>Update</td>
+                            <td>/dogs/:id</td>
+                            <td>PUT</td>
+                            <td>Update a particular dog then redirect to somewhere</td>
+                            <td>Dog.findByIdAndUpdate()</td>
+                        </tr>
+                        <tr class="positive">
+                            <td>Destroy</td>
+                            <td>/dogs/:id</td>
+                            <td>DELETE</td>
+                            <td>Delete a particular dog then redirect to somewhere</td>
+                            <td>Dog.findByIdAndRemove()</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h2>Example</h2>
+            <p>I love using an example to explain complicated things. Let's do it. Assume we want to 
+            build a blog about dogs(hope you like dogs). First, we need to define the root route in your
+            <code class="language-none">app.js</code> file, you can make a seperate landing page or just redirect to the Index route in the table which lists all dogs.</p>
+            <pre>
+                <code class="language-js">
+    app.get("/", function(req, res){
+        res.redirect("/dogs");
+    });
+                </code>
+            </pre>
+            <h3><i class="dot circle outline icon"></i>Index Route</h3>
+            <p>The index route is to list all dogs in our Mongo Database. First we need to add a new directory called views
+            in your project root directory. All the ejs(you need to install it first) files go to there.Then make a 
+            new file called
+            <code class="language-none">index.ejs</code>
+            which stores all the HTML and JS logic. You can add 
+            <code class="language-js">app.set("view engine", "ejs");</code> before all routes in your 
+            <code class="language-none">app.js</code> file and you don't have to type all the 
+            <code class="language-none">.ejs</code> when you render it.
+            After that, we add Index route in your 
+            <code class="language-none">app.js</code> file.</p> 
+            <pre><code class="language-markup">
+    $mkdir yourProjectName/views
+    $touch yourProjectName/views/index.ejs
+            </code></pre>
+            <pre><code class="language-js">
+    // INDEX ROUTE
+    app.get("/dogs", function(req, res){
+        //retrieve all data from DB
+        Dog.find({},function(err, dogs){
+            if(err){
+                console.log(err);
+            } else {
+                res.render("index", {dogs: dogs});  
+            }
+        });
+    });
+            </code></pre>
+            <h3><i class="dot circle outline icon"></i>New and Create Routes</h3>
+            <p>The New route is to render the form that you can add a new dog blog. It is a just a simple GET request.
+            The Create route is a POST request, it takes all the data from the form and create a new dog blog. The New route 
+            is like preparing ingredients and Create route is like cooking. Here is the code for these two routes:</p>
+            <pre><code class="language-js">
+    // NEW ROUTE
+    app.get("/dogs/new", function(req, res){
+        // SHOW NEW DOG FORM
+        res.render("new");
+    });
+    
+    //CREATE ROUTE
+    app.post("/dogs", function(req, res){
+        // CREATE DOG BLOG
+        Dog.create(req.body.dog, function(err, newDog){
+            if(err){
+                console.log(err);
+            } else {
+                // redirect to the index
+                res.redirect("/dogs")
+            }
+        });
+    });
+            </code></pre>
+            <p>In the <code class="language-none">new.ejs</code> file, the form tag should like: 
+            <code class="language-html">&ltform action="/dogs" method="POST"&gt</code> and if you don't
+            put dog as an object which is make the name attribute of the input like 
+            <code class="language-markup">name=dog[image]</code> instead of just 
+            <code class="language-markup">name=image</code>, you need to create a new object before the 
+            <code class="language-js">Dog.create()</code> method. The route code will be like:</p>
+            <pre><code class="language-js">
+    //CREATE ROUTE
+    app.post("/dogs", function(req, res){
+        var image = req.body.image; // your all attributes in input form
+        var name = req.body.name;  
+        var dogObject = {image: image, name: name}; // build a new dog object
+        // CREATE DOG BLOG
+        Dog.create(dogObject, function(err, newDog){
+            if(err){
+                console.log(err);
+            } else {
+                // redirect to the index
+                res.redirect("/dogs")
+            }
+        });
+    });
+            </code></pre>
+            <h3><i class="dot circle outline icon"></i>Show Route</h3>
+            <p>Show route is to show the detail of a specific dog blog. The difference between Show route and 
+            Index route is Show route contains the specific dog blog's ID which is generated by MongoDB.</p>
+            <pre><code class="language-js">
+    // SHOW ROUTE
+    app.get("/dogs/:id", function(req, res){
+        // find the specific blog by the ID which is generated by MongoDB
+        // "req.params.id" refers to ":id"
+        Dog.findById(req.params.id, function(err, foundDog){
+            if(err){
+                res.redirect("/dogs");
+            } else {
+                res.render("show",{dog: foundDog});
+            }
+        })
+    });
+            </code></pre>
+            <h3><i class="dot circle outline icon"></i>Edit and Update Routes</h3>
+            <p>Edit and Update routes are similar to New and Create routes except the methods. Also, Edit and 
+            Update routes are for a specific blog. Edit rout used for render edit form of the specific blog and 
+            Update route is for replace the old data with the new one. Here is the code:</p>
+            <pre><code class="language-js">
+    // EDIT ROUTE
+    app.get("/dogs/:id/edit", function(req, res){
+        Dog.findById(req.params.id, function(err, foundDog){
+            if(err){
+                console.log("edit error!");
+            } else {
+                // render the edit.ejs file which contains edit forms
+                res.render("edit", {dog: foundDog});
+            }
+        });
+    });
+    
+    // UPDATE ROUTE
+    app.put("/dogs/:id", function(req, res){
+        // mongodb method findByIdAndUpdate(theSpecificdogId, updatedData, callBack)
+        Dog.findByIdAndUpdate(req.params.id, req.body.dog, function(err, updatedDog){
+          if(err){
+             res.redirect("/dogs");
+          } else {
+             res.redirect("/dogs/" + req.params.id);
+          }
+      });
+    });
+            </code></pre>
+            <p>For the Update route, we use <code class="language-js">app.put()</code>, which is not default method 
+            in Express, so we need to override it. We just need to change a little bit of the 
+            <code class="language-html">&ltform&gt</code> tag which is:</p>
+            <pre><code class="language-html">&ltform action="/dogs/&lt%= dog._id %$gt?_method=PUT" method="POST"&gt</code></pre>
+            <h3><i class="dot circle outline icon"></i>Delete Route</h3>
+            <p>Finally comes to the Delete route. It is simple compare to the routes above. The route codes in 
+            <code class="language-none">app.js</code> file are:</p>
+            <pre><code class="language-js">
+    // DELETE ROUTE
+    app.delete("/dogs/:id", function(req, res){
+        // destroy blog
+        Dog.findByIdAndRemove(req.params.id, function(err){
+            if(err){
+                res.redirect("/dogs");
+            } else {
+                res.redirect("/dogs");
+            }
+        });
+    });
+            </code></pre>
+            <p>It is the same as the update route that there is no default delete method in Express. We need to change 
+            the <code class="language-html">&ltform&gt</code> tag in <code class="language-none">show.ejs</code> file to:
+            <pre><code class="language-html"></p>
+    &ltform id="delete" action="/blogs/&lt%= blog._id %>?_method=DELETE" method="POST">
+        &ltbutton class="ui red basic button">Delete&lt/button>
+    &lt/form>
+            </code></pre>
+            <h2>Conclusion</h2>
+            <p>RESTful Routes is not that complicated and by using it will make our code cleaner and easy to read,
+            especially when you reading others' codes. Hope this tutorial may help you a little bit when learning to 
+            write RESTful Routes.</p>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
