@@ -63,14 +63,14 @@
     font-size: medium;
 }
 .about-font{
-    font-family: 'Kalam', cursive;
+    font-family: 'Open Sans', sans-serif;;
 }
 .about_me_text{
     padding-top: 5em;
     padding-bottom: 5em;
     float:left;
-    font-family: 'Kalam', cursive;
-    font-size: small;
+    font-family: 'Open Sans', sans-serif;
+    font-size:1.3em;
 }
 
 .about_me_img{
