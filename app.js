@@ -16,4 +16,7 @@ app.get("/blogs/RESTful-Routes",function(req, res){
     res.render("blogs/restful_routes",{page: 'blogs'});
 })
 
+app.get("/projects", function(req, res){
+    res.render("projects",{page: 'projects'});
+})
 app.listen(process.env.PORT, process.env.IP);
